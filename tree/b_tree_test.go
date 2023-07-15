@@ -67,6 +67,10 @@ func (tree *BinarySearchTree) Search(value int64) *BinarySearchTreeNode {
 	}
 	return tree.Root.Search(value)
 }
+
+// Search 查找方法
+// 当前节点值不相等，那么判断大小，小于则左子树，大于则右子树
+// 递归查找
 func (node *BinarySearchTreeNode) Search(value int64) *BinarySearchTreeNode {
 	//找到了
 	if value == node.Value {
@@ -115,6 +119,7 @@ func (node *BinarySearchTreeNode) Findmin() *BinarySearchTreeNode {
 //中序遍历
 //后序遍历
 
+// PreOrder先序遍历
 func (tree *BinarySearchTree) PreOrder() []int64 {
 	var res []int64
 	if tree.Root == nil {
@@ -128,9 +133,123 @@ func (node *BinarySearchTreeNode) preOrder(res *[]int64) {
 	if node == nil {
 		return
 	}
+	//前序遍历：根结点 ---> 左子树 ---> 右子树
 	*res = append(*res, node.Value)
 	node.Left.preOrder(res)
 	node.Right.preOrder(res)
+}
+
+// 中序遍历
+func (tree *BinarySearchTree) InOrder() []int64 {
+	var res []int64
+	if tree.Root == nil {
+		return res
+	}
+	tree.Root.inOrder(&res)
+	return res
+}
+func (node *BinarySearchTreeNode) inOrder(res *[]int64) {
+	if node == nil {
+		return
+	}
+	//中序遍历：左子树---> 根结点 ---> 右子树
+
+	node.Left.inOrder(res)
+	*res = append(*res, node.Value)
+	node.Right.inOrder(res)
+}
+
+// 后序遍历
+
+func (tree *BinarySearchTree) PostOrder() []int64 {
+	var res []int64
+	if tree.Root == nil {
+		return res
+	}
+	tree.Root.postOrder(&res)
+	return res
+}
+
+func (node *BinarySearchTreeNode) postOrder(res *[]int64) {
+	if node == nil {
+		return
+	}
+	//后序遍历：左子树 ---> 右子树 ---> 根结点
+	node.Left.postOrder(res)
+	node.Right.postOrder(res)
+	*res = append(*res, node.Value)
+}
+
+// 广度遍历
+func (root *BinarySearchTree) bfs() []int64 {
+	if root.Root == nil {
+		return nil
+	}
+	var res []int64
+	root.Root.bfs(&res)
+	return res
+}
+
+func (node *BinarySearchTreeNode) bfs(res *[]int64) {
+	if node == nil {
+		return
+	}
+	q := []*BinarySearchTreeNode{node}
+	for len(q) > 0 {
+		node := q[0]
+		q = q[1:]
+		*res = append(*res, node.Value)
+		if node.Left != nil {
+			q = append(q, node.Left)
+		}
+		if node.Right != nil {
+			q = append(q, node.Right)
+		}
+	}
+}
+func TestLen(t *testing.T) {
+	b := GetTree()
+	res := b.bfs()
+	fmt.Println(res)
+}
+
+func BuildTree(nums []int64) *BinarySearchTree {
+	if len(nums) == 0 {
+		return nil
+	}
+	var root *BinarySearchTreeNode
+	if nums[0] != -1 {
+		root = &BinarySearchTreeNode{Value: nums[0]}
+	}
+	buildNode(nums[1:], root)
+	return &BinarySearchTree{root}
+}
+func TestSlice(t *testing.T) {
+	ums := []int64{1, 2, 3, 4, 5, 6}
+	fmt.Println(ums[1:])
+}
+func buildNode(nums []int64, root *BinarySearchTreeNode) {
+	queue := []*BinarySearchTreeNode{root}
+	for i := 0; i < len(nums); i += 2 {
+		node := queue[0]
+		queue = queue[1:]
+		if nums[i] < node.Value && nums[i] != -1 {
+			node.Left = &BinarySearchTreeNode{Value: nums[i]}
+			queue = append(queue, node.Left)
+		} else {
+			node.Right = &BinarySearchTreeNode{Value: nums[i+1]}
+			queue = append(queue, node.Right)
+		}
+	}
+}
+
+func TestBuildTree(t *testing.T) {
+	nums := []int64{1, 2, 3, 4, 5, 6}
+	root := BuildTree(nums)
+
+	fmt.Println(root.bfs(), root.Search(2))
+	//fmt.Println(root.Root.Left.Value) // output: 2
+
 }
 
 func GetTree() *BinarySearchTree {
